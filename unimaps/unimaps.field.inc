@@ -181,10 +181,10 @@ function unimaps_field_formatter_view($entity_type, $entity, $field, $instance, 
 
         if (isset($data['options'])) {
           $options = $data['options'];
-          foreach($options['controls'] as $k => $v) {
+          foreach ($options['controls'] as $k => $v) {
             if ($v == '0') unset($options['controls'][$k]);
           }
-          foreach($options['behaviors'] as $k => $v) {
+          foreach ($options['behaviors'] as $k => $v) {
             if ($v == '0') unset($options['behaviors'][$k]);
           }
         }
@@ -285,7 +285,7 @@ function unimaps_field_formatter_view($entity_type, $entity, $field, $instance, 
            unimaps_invoke_unimapsapi($object, 'map', 'node');
            $params = $object->options;
 
-           _unimaps_show_map($map_id, $params);
+//           _unimaps_show_map($map_id, $params);
 
       }
       break;
@@ -324,10 +324,10 @@ function unimaps_field_widget_form_submit($form, &$form_state) {
     $options = $form_state['values'][$field_name][LANGUAGE_NONE][0]['options'];
 
     if ($options) {
-      foreach($options['controls'] as $k => $v) {
+      foreach ($options['controls'] as $k => $v) {
         if ($v == '0') unset($form_state['values'][$field_name][LANGUAGE_NONE][0]['options']['controls'][$k]);
       }
-      foreach($options['behaviors'] as $k => $v) {
+      foreach ($options['behaviors'] as $k => $v) {
         if ($v == '0') unset($form_state['values'][$field_name][LANGUAGE_NONE][0]['options']['behaviors'][$k]);
       }
     }
@@ -392,10 +392,10 @@ function unimaps_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     }
 
     if (isset($options)) {
-      foreach($options['controls'] as $k => $v) {
+      foreach ($options['controls'] as $k => $v) {
         if ($v == '0') unset($options['controls'][$k]);
       }
-      foreach($options['behaviors'] as $k => $v) {
+      foreach ($options['behaviors'] as $k => $v) {
         if ($v == '0') unset($options['behaviors'][$k]);
       }
     }

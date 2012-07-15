@@ -69,7 +69,7 @@ function unimaps_yandex_geocoder_form_alter(&$form, &$form_state, $form_id) {
       $field_name = unimaps_get_fields($bundle);
 
       // для ноды - добавление геокодера в каждое из значений поля
-      if (!empty($form[$field_name])) foreach($form[$field_name][LANGUAGE_NONE] as $id => $item) {
+      if (!empty($form[$field_name])) foreach ($form[$field_name][LANGUAGE_NONE] as $id => $item) {
         if (in_array($id, element_children($form[$field_name][LANGUAGE_NONE])) && is_numeric($id)) {
           $form[$field_name][LANGUAGE_NONE][$id] += unimaps_show_geocoder($id);
         }

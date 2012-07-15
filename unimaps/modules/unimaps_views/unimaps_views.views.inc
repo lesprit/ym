@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Views support functions for the unimaps module.
+ */
+
 function unimaps_views_views_plugins() {
 
   return array(

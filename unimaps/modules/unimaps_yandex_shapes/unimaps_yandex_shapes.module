@@ -402,16 +402,10 @@ function unimaps_yandex_polygon_form($options, $delta, $points) {
 // Определение списка параметров ломаной линии для views
 function unimaps_views_get_polyline($obj, $handlers) {
 
-//dpm($obj);
-
-        // опциональная обрезка name и descr
-//      $pm[$res->nid]['name'] = ($alter_title['trim']) ? check_plain(views_trim_text($alter_title, $res->node_title)) : check_plain($res->node_title);
-//      $pm[$res->nid]['title'] = l($pm[$res->nid]['name'], 'node/' . $res->nid);
-
-  if ($obj) foreach($obj as $id => $value) {
+  if ($obj) foreach ($obj as $id => $value) {
 
     // для каждой ноды создать отдельную линию
-    foreach($value as $k => $v) {
+    foreach ($value as $k => $v) {
       // nid - идентификатор ломаной линии
       if ($k == 'nid' && is_numeric($v)) $nid = $v;
       // delta - номер вершины ломаной линии
@@ -447,25 +441,17 @@ function unimaps_views_get_polyline($obj, $handlers) {
     }
   }
 
-//  dpm($pl);
-
   return $pl;
 }
 
 // Определение списка параметров многоугольника для views
 function unimaps_views_get_polygon($obj, $handlers) {
 
-//dpm($obj);
-
-        // опциональная обрезка name и descr
-//      $pm[$res->nid]['name'] = ($alter_title['trim']) ? check_plain(views_trim_text($alter_title, $res->node_title)) : check_plain($res->node_title);
-//      $pm[$res->nid]['title'] = l($pm[$res->nid]['name'], 'node/' . $res->nid);
-
   // для каждой ноды создать отдельный многоугольник
-  if ($obj) foreach($obj as $id => $value) {
+  if ($obj) foreach ($obj as $id => $value) {
 
     // для каждой ноды обработать массив вершин ломаной линии
-    foreach($value as $k => $v) {
+    foreach ($value as $k => $v) {
       // nid - идентификатор многоугольника
       if ($k == 'nid' && is_numeric($v)) $nid = $v;
       // delta - номер вершины многоугольника
@@ -504,8 +490,6 @@ function unimaps_views_get_polygon($obj, $handlers) {
 
     }
   }
-
-//  dpm($pl);
 
   return $pg;
 }

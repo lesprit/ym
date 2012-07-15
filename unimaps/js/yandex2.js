@@ -12,8 +12,6 @@ function init() {
   // Если задано НЕСКОЛЬКО карт - инициализировать КАЖДУЮ из них
   if (options) $.each(options, function(map_id, map_options) {
 
-//console.log(map_options);
-
     //  Создание коллекции геообъектов
     group = new ymaps.GeoObjectCollection();
     groups[map_options.map_delta] = group;
@@ -332,8 +330,8 @@ function init() {
     var lng = parseFloat(coords[1]);
 
     // передача координат геообъекта в соотв. поля формы редактирования
-    if (/*$(options.lat_id).val() &&*/ lat && lat != 0) $(options.lat_id).val(lat);
-    if (/*$(options.lng_id).val() &&*/ lng && lng != 0) $(options.lng_id).val(lng);
+    if (lat && lat != 0) $(options.lat_id).val(lat);
+    if (lng && lng != 0) $(options.lng_id).val(lng);
 
     // передача масштаба карты в соотв. поле формы редактирования
     if ($(options.zoom_id).val() && zoom) $(options.zoom_id).val(zoom);
@@ -349,8 +347,6 @@ function init() {
 
   // Создание на карте линии с заданными координатами вершин
   function createPolyline(map, options, id, pl) {
-
-//console.log(pl);
 
     var points = new Array();
     if (pl) $.each(pl.points, function(id, p) {
@@ -409,8 +405,6 @@ function init() {
   // Создание на карте многоугольника с заданными координатами вершин
   function createPolygon(map, options, id, pg) {
 
-//console.log(pg);
-
     var points = new Array();
     if (pg) $.each(pg.points, function(id, p) {
       points.push([parseFloat(p.lat), parseFloat(p.lng)]);
@@ -424,8 +418,6 @@ function init() {
             balloonCloseButton: true,
          }
     );
-
-//console.log(polygon);
 
    // содержимое всплывающей подсказки
    if (pg.ym_pg_name) polygon.properties.set({ hintContent: pg.ym_pg_name });
@@ -627,12 +619,9 @@ function init() {
       }
       else if (coords.toString) res = coords.toString();
 
-console.log(res);
-
       return res;
     }
   }
-
 
 }
 

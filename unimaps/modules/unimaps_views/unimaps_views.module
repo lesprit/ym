@@ -18,7 +18,7 @@ function unimaps_views_get_objects($result, $handlers) {
 
   if ($result) {
 
-    foreach($result as $obj) {
+    foreach ($result as $obj) {
 
       // nid ноды
       $nid = $obj->nid;
@@ -29,7 +29,7 @@ function unimaps_views_get_objects($result, $handlers) {
       // содержимое поля
       $field = $obj->_field_data['nid']['entity']->$field_name;
 
-      foreach($field[LANGUAGE_NONE] as $delta => $name) {
+      foreach ($field[LANGUAGE_NONE] as $delta => $name) {
 
         // извлечение информации о линии
         if ($bundle == 'ym_polyline' && $delta == 0) {
@@ -58,7 +58,7 @@ function unimaps_views_get_objects($result, $handlers) {
         }
 
         // извлечение информации о метках
-        else if ($name['lat'] != UNIMAPS_LATITUDE && $name['lng'] != UNIMAPS_LONGITUDE) {
+        elseif ($name['lat'] != UNIMAPS_LATITUDE && $name['lng'] != UNIMAPS_LONGITUDE) {
           $pid = $nid . '-' . $delta;
           $pm['placemarks'][$pid]['lat'] = $name['lat'];
           $pm['placemarks'][$pid]['lng'] = $name['lng'];

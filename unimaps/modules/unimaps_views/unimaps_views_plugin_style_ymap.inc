@@ -143,37 +143,10 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
       '#default_value' => !empty($this->options['options']['behaviors']) ? $this->options['options']['behaviors'] : array('drag', 'scrollzoom', 'dblclickzoom', 'multitouch'),
     );
 
-/*
-    // стиль по умолчанию
-    $form['plugin_style'] = array(
-      '#type' => 'select',
-      '#title' => t('Plugin style'),
-      '#description' => t('Style of plugin'),
-      '#default_value' => !empty($this->options['plugin_style']) ? $this->options['plugin_style'] : UNIMAPS_PLUGIN_STYLE,
-      '#options' => array(
-        'default' => t('Default'),
-      ),
-      '#disabled' => TRUE,
-    );
-    if (module_exists('unimaps_yandex_shapes')) {
-      $form['plugin_style']['#disabled'] = FALSE;
-      $form['plugin_style']['#options']['lines'] = t('Polylines');
-      $form['plugin_style']['#options']['polygones'] = t('Polygones');
-
-      $form += unimaps_yandex_polyline_form($this->options['polyline']);
-      $form += unimaps_yandex_polygon_form($this->options['polygon']);
-
-    }
-    if (module_exists('unimaps_yandex_routes')) {
-      $form['plugin_type']['#options']['routes'] = t('Routes');
-      $form['plugin_type']['#disabled'] = FALSE;
-    }
-*/
-
   }
 
   function render() {
-    global $user;
+    global $user, $_unimaps_fl;
 
     parent::options_form($form, $form_state);
 
@@ -183,15 +156,15 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
     $display = $this->view->current_display;
     $handlers = $this->view->display[$display]->handler->handlers['field'];
 
-    if ($this->options['options']['controls']) foreach($this->options['options']['controls'] as $k => $v) {
+    if ($this->options['options']['controls']) foreach ($this->options['options']['controls'] as $k => $v) {
       if (!empty($v)) $this->options[$k] = 1;
     }
 
-    if ($this->options['options']['objects']) foreach($this->options['options']['objects'] as $k => $v) {
+    if ($this->options['options']['objects']) foreach ($this->options['options']['objects'] as $k => $v) {
       if (!empty($v)) $this->options[$k] = 1;
     }
 
-    if ($this->options['options']['behaviors']) foreach($this->options['options']['behaviors'] as $k => $v) {
+    if ($this->options['options']['behaviors']) foreach ($this->options['options']['behaviors'] as $k => $v) {
       if (!empty($v)) $this->options[$k] = 1;
     }
     unset($this->options['options']);
@@ -211,10 +184,10 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
     $map_id = 'unimaps-views-' . $this->view->name . '-' . $display;
     $this->options['map_id'] = $map_id;
 
+    $_unimaps_fl = TRUE;
+
     // список меток
-    if ($plugin_style == 'default') {
-      if (user_access('view placemark')) $this->options += unimaps_views_get_objects($this->view->result, $handlers);
-    }
+    if (user_access('view placemark')) $this->options += unimaps_views_get_objects($this->view->result, $handlers);
 
     if (module_exists('unimaps_click')) {
       $this->options['can_add'] = UNIMAPS_CAN_ADD_PLACEMARKS;
@@ -240,6 +213,8 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
       'options' => $this->options,
       'rows' => '',
     ));
+
+    $_unimaps_fl = FALSE;
 
   }
 

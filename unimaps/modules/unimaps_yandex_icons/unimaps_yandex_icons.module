@@ -14,7 +14,7 @@ function unimaps_yandex_icons_init() {
   }
 }
 
-function unimaps_yandex_icons_js_alter(&$javascript){
+function unimaps_yandex_icons_js_alter(&$javascript) {
 
   // ¬ключаетс€ только на странице добавлени€ или редактировани€ ноды
   // и при наличии у юзера соотв. прав

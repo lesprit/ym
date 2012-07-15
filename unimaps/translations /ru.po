@@ -1,0 +1,437 @@
+# translation of unimaps_6.x.po to russian
+# $Id: ru.po,v 1.1 2011/04/19 18:10:10 sun Exp $
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#
+# Yuri Lysenkov <lesprit@ua.fm>, 2011.
+
+
+msgid "Administer unimaps"
+msgstr "Администрирование unimaps"
+
+msgid "View placemark"
+msgstr "Просмотр геообъектов"
+
+msgid "Insert map in node edit form"
+msgstr "Вставка карты в форму редактирования материала"
+
+msgid "Add placemark"
+msgstr "Добавить геообъект"
+
+msgid "Edit placemark"
+msgstr "Редактирование геообъекта"
+
+msgid "Remove placemark"
+msgstr "Удалить геообъекта"
+
+msgid "Select placemark icon"
+msgstr "Выбор иконки для геообъекта"
+
+msgid "km"
+msgstr "км"
+
+msgid 'Before usage, configure your <a href="@url">Yandex Maps API Key</a>'
+msgstr ""
+
+msgid "Unimaps"
+msgstr ""
+
+msgid "Unimaps input."
+msgstr ""
+
+msgid "Invalid Latitude."
+msgstr "Неверная щирота"
+
+msgid "Invalid Longitude."
+msgstr "Неверная долгота"
+
+msgid "Lat/Lng formatter"
+msgstr "Широта/долгота"
+
+msgid "Latitude only formatter"
+msgstr "Только широта"
+
+msgid "Longitude only formatter"
+msgstr "Только долгота"
+
+msgid "Name only formatter"
+msgstr "Только название"
+
+msgid "Description only formatter"
+msgstr "Только описание"
+
+msgid "Yandex icon formatter"
+msgstr "Иконка Яндекс.Карт"
+
+msgid "Yandex maps formatter"
+msgstr "Геообъект Яндекс.Карты"
+
+msgid "Coordinates is @lat, @lng"
+msgstr "Координаты"
+
+msgid "Latitude/Longitude"
+msgstr "Широта/Долгота"
+
+msgid "Yandex map"
+msgstr "Яндекс.Карта"
+
+msgid "Latitude"
+msgstr "Широта"
+
+msgid "Longitude"
+msgstr "Долгота"
+
+msgid "Name"
+msgstr "Название"
+
+msgid "Name of the placemark"
+msgstr "Название геообъекта"
+
+msgid "Description"
+msgstr "Описание"
+
+msgid "Description of the placemark"
+msgstr "Описание геообъекта"
+
+msgid "Drag map by holding left button. Create marker by click."
+msgstr ""
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "Yandex icon"
+msgstr "Иконка Яндекс.Карты"
+
+msgid "Yandex icon for the placemark"
+msgstr "Иконка Яндекс.Карты для геообъекта"
+
+msgid "Map options"
+msgstr "Настройки карты"
+
+msgid "Map height"
+msgstr "Высота карты"
+
+msgid "Yandex map height"
+msgstr "Высота Яндекс.Карты"
+
+msgid "Map width"
+msgstr "Ширина карты"
+
+msgid "Yandex map width"
+msgstr "Ширина Яндекс.Карты"
+
+msgid "Type of zoom control"
+msgstr "Тип управления масштабом"
+
+msgid "Select zoom control type"
+msgstr "Выберите тип управления масштабом"
+
+msgid "Zoom Control"
+msgstr "Управление масштабом"
+
+msgid "Map controls"
+msgstr "Управление картой"
+
+msgid "Map tools"
+msgstr "Панель управления картой"
+
+msgid "Mini map"
+msgstr "Мини-карта"
+
+msgid "Type control"
+msgstr "Переключение типа"
+
+msgid "Scaleline"
+msgstr "Масштабная линейка"
+
+msgid "Traffic control"
+msgstr "Просмотр пробок"
+
+msgid "Search"
+msgstr "Поиск"
+
+msgid "Map behaviors"
+msgstr "Поведение карты"
+
+msgid "Enable map dragging"
+msgstr "Разрешить перетаскивание"
+
+msgid "Enable scrool zoom"
+msgstr "Изменение масштаба прокруткой"
+
+msgid "Enable double click zoom"
+msgstr "Изменение масштаба прокруткой"
+
+msgid "Multitouch support"
+msgstr "Поддержка мультача"
+
+msgid "Yandex map key"
+msgstr "API-ключ Яндекс.Карты"
+
+msgid "Yandex API version"
+msgstr "Версия API Яндекса"
+
+msgid "Version of Yandex API"
+msgstr "Версия API Яндекса"
+
+msgid "Yandex map zoom level"
+msgstr "Значение масштаба Яндекс.Карты"
+
+msgid "Yandex map size"
+msgstr "Размер Яндекс.Карты"
+
+msgid "Yandex map type"
+msgstr "Тип Яндекс.Карты"
+
+msgid "List of Yandex icons"
+msgstr "Список иконок Яндекс.Карты"
+
+msgid "Using yandex.js"
+msgstr "Используется yandex.js"
+
+msgid "Not found"
+msgstr "Не найден"
+
+msgid "Use Yandex geocoder"
+msgstr "Использовать геокодер Яндекса"
+
+msgid "Address"
+msgstr "Адрес"
+
+msgid "Locate"
+msgstr "Найти на карте"
+
+msgid "Yandex Map"
+msgstr "Яндекс.Карта"
+
+msgid "Displays rows as a Yandex map."
+msgstr "Показывать столбцы как Яндекс.Карту"
+
+msgid "Universal maps"
+msgstr "Универсальные карты"
+
+msgid "Distance"
+msgstr "Рассточние"
+
+msgid "Drag map by holding left button. Create marker by click."
+msgstr ""
+
+msgid "You need at least one field before you can configure your Yandex Maps settings"
+msgstr ""
+
+msgid "Height of map"
+msgstr "Высота карты"
+
+msgid "Width of map"
+msgstr "Ширина карты"
+
+msgid "Type of map"
+msgstr "Тип карты"
+
+msgid "Map"
+msgstr "Карта"
+
+msgid "Satellite"
+msgstr "Спутник"
+
+msgid "Hybrid"
+msgstr "Гибрид"
+
+msgid "Public map"
+msgstr "Народная карта"
+
+msgid "Public hybrid"
+msgstr "Народный гибрид"
+
+msgid "Center latitude"
+msgstr ""
+
+msgid "Latitude of map center"
+msgstr "Широта центра карты"
+
+msgid "Center longitude"
+msgstr "Широта центра карты"
+
+msgid "Longitude of map center"
+msgstr "Долгота центра карты"
+
+msgid "Use IPGeobase for map centering"
+msgstr ""
+
+msgid "None"
+msgstr "Нет"
+
+msgid "Small Zoom Control"
+msgstr ""
+
+msgid "Zoom Control"
+msgstr ""
+
+msgid "Search control"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Search form"
+msgstr ""
+
+msgid "Toolbar"
+msgstr ""
+
+msgid "Show type control"
+msgstr ""
+
+msgid "Objects list"
+msgstr ""
+
+msgid "Placemarks numbers"
+msgstr ""
+
+msgid "Scroll Zoom"
+msgstr ""
+
+msgid "Double Click Zoom"
+msgstr ""
+
+msgid "Map Dragging"
+msgstr ""
+
+msgid "MultiTouch"
+msgstr ""
+
+msgid "Yandex map polyline"
+msgstr ""
+
+msgid "Use for drawing polylines at Yandex maps."
+msgstr ""
+
+msgid "Yandex map polygon"
+msgstr ""
+
+msgid "Use for drawing polygones at Yandex maps."
+msgstr ""
+
+msgid "Yandex map circle"
+msgstr ""
+
+msgid "Use for drawing circles at Yandex maps."
+msgstr ""
+
+msgid "Name of polyline"
+msgstr ""
+
+msgid "Polyline description"
+msgstr ""
+
+msgid "Description of polyline"
+msgstr ""
+
+msgid "Polyline type"
+msgstr ""
+
+msgid "Type of polyline"
+msgstr ""
+
+msgid "Stroke color"
+msgstr ""
+
+msgid "Color of strock"
+msgstr ""
+
+msgid "Stroke width"
+msgstr ""
+
+msgid "Width of strock"
+msgstr ""
+
+msgid "Stroke opacity"
+msgstr ""
+
+msgid "Opacity of strock"
+msgstr ""
+
+msgid "Polyline dragging"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Polygon options"
+msgstr ""
+
+msgid "Polygon name"
+msgstr ""
+
+msgid "Name of polyline"
+msgstr ""
+
+msgid "Polygon description"
+msgstr ""
+
+msgid "Description of polygon"
+msgstr ""
+
+msgid "Polygon style"
+msgstr ""
+
+msgid "Style of polygon"
+msgstr ""
+
+msgid "Short Dash"
+msgstr ""
+
+msgid "Stroke color"
+msgstr ""
+
+msgid "Color of strock"
+msgstr ""
+
+msgid "Stroke width"
+msgstr ""
+
+msgid "Width of strock"
+msgstr ""
+
+msgid "Fill"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "Fill color"
+msgstr ""
+
+msgid "Color of fill"
+msgstr ""
+
+msgid "Polygon opacity"
+msgstr ""
+
+msgid "Opacity of polygon"
+msgstr ""
+
+msgid "Polygon dragging"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
+
+msgid ""
+msgstr ""
