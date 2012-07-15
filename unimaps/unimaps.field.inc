@@ -285,7 +285,7 @@ function unimaps_field_formatter_view($entity_type, $entity, $field, $instance, 
            unimaps_invoke_unimapsapi($object, 'map', 'node');
            $params = $object->options;
 
-//           _unimaps_show_map($map_id, $params);
+           _unimaps_show_map($map_id, $params);
 
       }
       break;
