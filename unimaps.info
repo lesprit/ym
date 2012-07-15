@@ -1,0 +1,9 @@
+name = Unimaps
+description = Yandex Maps support on node edit form.
+package = Unimaps
+
+dependencies[] = field
+dependencies[] = wysiwyg
+;dependencies[] = 
+
+core = 7.x
