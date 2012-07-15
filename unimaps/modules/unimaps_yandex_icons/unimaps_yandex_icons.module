@@ -30,7 +30,7 @@ function unimaps_yandex_icons_js_alter(&$javascript){
 
 function unimaps_yandex_icons_access() {
 
-  return user_access('select yandex icon') && ((arg(0) == 'node' && (is_numeric(arg(1)) || arg(1) == 'add')) || arg(0) == 'admin' && arg(1) == 'structure' && arg(2) == 'types' && arg(5) == 'fields' && arg(7) == 'field-settings');
+  return user_access('select yandex icon') && ((arg(0) == 'node' && (is_numeric(arg(1)) || arg(1) == 'add')) || arg(0) == 'admin' && arg(1) == 'structure' && arg(2) == 'types' && arg(5) == 'fields');
 }
 
 /*

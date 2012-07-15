@@ -33,7 +33,6 @@ define('UNIMAPS_YMAP_LIST',      FALSE);
 define('UNIMAPS_YMAP_NUMBERS',   FALSE);
 
 // Расположение по умолчанию файла .js
-define('UNIMAPS_YANDEX_JS',       drupal_get_path('module', 'unimaps') . '/js/yandex.js');
 define('UNIMAPS_YANDEX2_JS',      drupal_get_path('module', 'unimaps') . '/js/yandex2.js');
 
 
@@ -164,4 +163,20 @@ function _yandex_maps_get_js() {
   $yandex_js = variable_get('unimaps_yandex_js', UNIMAPS_YANDEX2_JS);
 
   return file_exists($yandex_js) ? $yandex_js : '';
+}
+
+// Реализация хуков для сторонних модулей
+function unimaps_invoke_unimapsapi(&$object, $op, $type = 'views', $js = '') {
+
+  $return = array();
+  foreach (module_implements('unimapsapi') as $name) {
+    $function = $name . '_unimapsapi';
+    $result = $function($object, $op, $type);
+    if (isset($result) && is_array($result)) {
+      $return = array_merge($return, $result);
+    }
+    elseif (isset($result)) $return[] = $result;
+  }
+
+  return $return;
 }

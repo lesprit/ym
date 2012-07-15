@@ -119,8 +119,6 @@ function unimaps_field_formatter_view($entity_type, $entity, $field, $instance, 
 
   $element = array();
 
-//dpm($items);
-
   switch ($display['type']) {
 
     case 'unimaps_text':
@@ -161,7 +159,6 @@ function unimaps_field_formatter_view($entity_type, $entity, $field, $instance, 
         $descr = isset($items[$delta]['descr']) ? $items[$delta]['descr'] : array();
         $lat = isset($items[$delta]['lat']) ? $items[$delta]['lat'] : UNIMAPS_LATITUDE;
         $lng = isset($items[$delta]['lng']) ? $items[$delta]['lng'] : UNIMAPS_LONGITUDE;
-//        $zoom = isset($items[$delta]['zoom']) ? $items[$delta]['zoom'] : UNIMAPS_YMAP_ZOOM;
         $yandex_icon = isset($items[$delta]['yandex_icon']) ? $items[$delta]['yandex_icon'] : (variable_get('unimaps_yandex_api', 2) ? UNIMAPS_YANDEX2_ICON : UNIMAPS_YANDEX_ICON);
         $data = isset($items[$delta]['data']) ? unserialize($items[$delta]['data']) : array();
         $zoom = isset($data['zoom']) ? $data['zoom'] : UNIMAPS_YMAP_ZOOM;
@@ -173,27 +170,13 @@ function unimaps_field_formatter_view($entity_type, $entity, $field, $instance, 
         $height = isset($data['options']['height']) ? $data['options']['height'] : UNIMAPS_MAP_HEIGHT;
         $width = isset($data['options']['width']) ? $data['options']['width'] : UNIMAPS_MAP_WIDTH;
 
-//      $data = isset($items[$dl]['data']) ? unserialize($items[$dl]['data']) : array();
-
         if (module_exists('unimaps_yandex_shapes') && !empty($data['polyline'])) {
           $polyline = $data['polyline'];
-
-//$options['ym_pl_drag'] = isset($polyline['ym_pl_drag']) ? 1 : 0;
-dpm($polyline['ym_pl_drag']);
-
-          preg_match_all('/\[\s*(\d+.?\d+)\s*?,\s*?(\d+.?\d+)\s*\]/s', $polyline['points'], $matches);
-          if ($matches) foreach($matches[0] as $k => $v) {
-            $points[$k]['lat'] = $matches[1][$k];
-            $points[$k]['lng'] = $matches[2][$k];
-          }
+          if (isset($polyline['points'])) $points = unimaps_coords_decode($polyline['points']);
         }
         if (module_exists('unimaps_yandex_shapes') && !empty($data['polygon'])) {
           $polygon = $data['polygon'];
-          preg_match_all('/\[\s*(\d+.?\d+)\s*?,\s*?(\d+.?\d+)\s*\]/s', $polygon['points'], $matches);
-          if ($matches) foreach($matches[0] as $k => $v) {
-            $points[$k]['lat'] = $matches[1][$k];
-            $points[$k]['lng'] = $matches[2][$k];
-          }
+          if (isset($polygon['points'])) $points = unimaps_coords_decode($polygon['points']);
         }
 
         if (isset($data['options'])) {
@@ -226,19 +209,17 @@ dpm($polyline['ym_pl_drag']);
             'can_add' => 0,
           );
 
-dpm($polyline);
-
           // выводить только для линий
           if (module_exists('unimaps_yandex_shapes') && user_access('view placemark') && $entity->type == 'ym_polyline') {
             $style = 'lines';
             $params[$style][0] = array(
               'points' => $points,
               'ym_pl_name' => !empty($name) ? $name : '',
-              'ym_pl_type' => !empty($polyline['ym_pl_type']) ? $polyline['ym_pl_type'] : UNIMAPS_POLYLINE_STYLE,
+              'ym_pl_type' => !empty($polyline['ym_pl_type']) ? $polyline['ym_pl_type'] : UNIMAPS_POLYLINE_TYPE,
               'ym_pl_color' => !empty($polyline['ym_pl_color']) ? $polyline['ym_pl_color'] : UNIMAPS_POLYLINE_COLOR,
               'ym_pl_width' => !empty($polyline['ym_pl_width']) ? $polyline['ym_pl_width'] : UNIMAPS_POLYLINE_WIDTH,
               'ym_pl_opacity' => !empty($polyline['ym_pl_opacity']) ? $polyline['ym_pl_opacity'] : UNIMAPS_POLYLINE_OPACITY,
-              'ym_pl_drag' => $polyline['ym_pl_drag'],
+              'ym_pl_drag' => $data['polyline']['ym_pl_drag'],
               'ym_pl_edit' => 0,
             );
             if (user_access('view balloon content')) $params[$style][0]['ym_pl_descr'] = (is_array($descr) && isset($descr['value'])) ? $descr['value'] : $descr;
@@ -257,7 +238,7 @@ dpm($polyline);
               'ym_pg_fill' => isset($polygon['ym_pg_fill']) ? (integer)$polygon['ym_pg_fill'] : UNIMAPS_POLYGON_FILL,
               'ym_pg_fillcolor' => !empty($polygon['ym_pg_fillcolor']) ? $polygon['ym_pg_fillcolor'] : UNIMAPS_POLYGON_FILLCOLOR,
               'ym_pg_opacity' => !empty($polygon['ym_pg_opacity']) ? $polygon['ym_pg_opacity'] : UNIMAPS_POLYGON_OPACITY,
-              'ym_pg_drag' => (isset($polygon['ym_pg_drag']) && $polygon['ym_pg_drag'] != 0) ? 1 : 0,
+              'ym_pg_drag' => $data['polygon']['ym_pg_drag'],
               'ym_pg_edit' => 0,
             );
             if (user_access('view balloon content')) $params[$style][0]['ym_pg_descr'] = (is_array($descr) && isset($descr['value'])) ? $descr['value'] : $descr;
@@ -296,13 +277,15 @@ dpm($polyline);
           if (isset($options['behaviors']['dblclickzoom'])) $params['dblclickzoom'] = 1;
           if (isset($options['behaviors']['multitouch'])) $params['multitouch'] = 1;
 
-//dpm($points);
+          $element[$delta]['#markup'] = '<div id="YMapsID-' . $map_id . '" style="width: ' . $width . 'px; height: ' . $height . 'px"><ul id="YMapsID-links-' . $map_id . '"></ul>';
 
-        $element[$delta]['#markup'] = '<div id="YMapsID-' . $map_id . '" style="width: ' . $width . 'px; height: ' . $height . 'px"><ul id="YMapsID-links-' . $map_id . '"></ul>';
 
-dpm($params);
+           // вызов hook_unimapsapi() с $op = ''
+           $object->options = $params;
+           unimaps_invoke_unimapsapi($object, 'map', 'node');
+           $params = $object->options;
 
-        _unimaps_show_map($map_id, $params);
+           _unimaps_show_map($map_id, $params);
 
       }
       break;
@@ -315,13 +298,8 @@ dpm($params);
  * Implements hook_field_widget_info().
  */
 function unimaps_field_widget_info() {
+
   return array(
-/*
-    'unimaps_text' => array(
-      'label' => t('Latitude/Longitude'),
-      'field types' => array('unimaps_latlng'),
-    ),
-*/
     'unimaps_yandex' => array(
       'label' => t('Yandex map'),
       'field types' => array('unimaps_latlng'),
@@ -335,9 +313,6 @@ function unimaps_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form
 }
 
 function unimaps_field_widget_form_submit($form, &$form_state) {
-
- dpm($form_state['values']);
-
 
   $field_name = unimaps_get_fields($form_state['complete form']['#instance']['bundle']);
 
@@ -357,8 +332,6 @@ function unimaps_field_widget_form_submit($form, &$form_state) {
       }
     }
 
-//  dpm($form_state['values'][$field_name][LANGUAGE_NONE][0]);
-
   }
 }
 
@@ -366,8 +339,6 @@ function unimaps_field_widget_form_submit($form, &$form_state) {
  * Implements hook_field_widget_form().
  */
 function unimaps_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-
-dpm($items);
 
     if (user_access('insert map in node edit form')) {
 
@@ -391,41 +362,27 @@ dpm($items);
       if (arg(0) == 'node' && is_numeric(arg(1))) {
         $data = isset($items[$dl]['data']) ? unserialize($items[$dl]['data']) : array();
 
-        if (isset($data['options'])) $options = $data['options'];
-        else {
-          $options = array(
-            'controls' => array('maptools' => 'maptools', 'typecontrol' => 'typecontrol'),
-            'behaviors' => array('drag' => 'drag', 'scrollzoom' => 'scrollzoom', 'dblclickzoom' => 'dblclickzoom', 'multitouch' => 'multitouch'),
-          );
-        }
+        $options = (isset($data['options'])) ? $data['options'] : unimaps_default_options();
 
         $zoom = isset($data['zoom']) ? $data['zoom'] : UNIMAPS_YMAP_ZOOM;
         $type = isset($data['type']) ? $data['type'] : UNIMAPS_YMAP_TYPE;
 
         if (module_exists('unimaps_yandex_shapes') && isset($data['polyline'])) {
           $polyline = $data['polyline'];
-          preg_match_all('/\[\s*(\d+.?\d+)\s*?,\s*?(\d+.?\d+)\s*\]/s', $data['polyline']['points'], $matches);
-          if ($matches) foreach($matches[0] as $k => $v) {
-            $points[$k]['lat'] = $matches[1][$k];
-            $points[$k]['lng'] = $matches[2][$k];
-          }
+          if (isset($polyline['points'])) $points = unimaps_coords_decode($polyline['points']);
         }
-
 
         if (module_exists('unimaps_yandex_shapes') && isset($data['polygon'])) {
           $polygon = $data['polygon'];
-          preg_match_all('/\[\s*(\d+.?\d+)\s*?,\s*?(\d+.?\d+)\s*\]/s', $data['polygon']['points'], $matches);
-          if ($matches) foreach($matches[0] as $k => $v) {
-            $points[$k]['lat'] = $matches[1][$k];
-            $points[$k]['lng'] = $matches[2][$k];
-          }
+          if (isset($polygon['points'])) $points = unimaps_coords_decode($polygon['points']);
         }
       if (module_exists('unimaps_yandex_shapes') && isset($data['polygon'])) {
         $polygon = $data['polygon'];
       }
     }
     else {
-      $options = isset($items[$dl]['options']) ? $items[$dl]['options'] : array();
+
+      $options = isset($items[$dl]['options']) ? $items[$dl]['options'] : unimaps_default_options();
 
       $zoom = isset($items[$dl]['zoom']) ? $items[$dl]['zoom'] : UNIMAPS_YMAP_ZOOM;
       $type = isset($items[$dl]['type']) ? $items[$dl]['type'] : UNIMAPS_YMAP_TYPE;
@@ -433,8 +390,6 @@ dpm($items);
       if (module_exists('unimaps_yandex_shapes') && isset($items[$dl]['polyline'])) $polyline = $items[$dl]['polyline'];
       if (module_exists('unimaps_yandex_shapes') && isset($items[$dl]['polygon'])) $polygon = $items[$dl]['polygon'];
     }
-
-//dpm($points);
 
     if (isset($options)) {
       foreach($options['controls'] as $k => $v) {
@@ -456,11 +411,6 @@ dpm($items);
 
     switch ($instance['widget']['type']) {
       case 'unimaps_yandex':
-
-//        $form['#attached']['js'] = array(
-//          drupal_get_path('module', 'unimaps') . '/js/unimaps.js'
-//        );
-//        drupal_add_js(array('unimaps' => array('lat' => UNIMAPS_LATITUDE, 'lng' => UNIMAPS_LONGITUDE, 'warning' => t('Empty map! You must set placemark on it!'))), 'setting');
 
           // выводить форму редактирования только при наличии у юзера соотв. прав
           $element['map'] = array(
@@ -642,7 +592,7 @@ dpm($items);
               'ym_pl_edit' => 1,
             );
             if (isset($points)) $params['lines'][0]['points'] = $points;
-            if (user_access('view balloon content')) $params[$style][0]['ym_pl_descr'] = is_array($descr) ? $descr['value'] : $descr;
+            if (user_access('view balloon content')) $params[$style][0]['ym_pl_descr'] = (is_array($descr) && isset($descr['value'])) ? $descr['value'] : $descr;
             $params['points_id'] = '#edit-points-' . $dl . ' input';
             $element += unimaps_yandex_polyline_form($params[$style][0], $dl, $polyline['points']);
           }
@@ -655,7 +605,7 @@ dpm($items);
               'ym_pg_style' => !empty($polygon['ym_pg_style']) ? $polygon['ym_pg_style'] : UNIMAPS_POLYGON_STYLE,
               'ym_pg_width' => !empty($polygon['ym_pg_width']) ? $polygon['ym_pg_width'] : UNIMAPS_POLYGON_WIDTH,
               'ym_pg_color' => !empty($polygon['ym_pg_color']) ? $polygon['ym_pg_color'] : UNIMAPS_POLYGON_COLOR,
-              'ym_pg_fill' => isset($polygon['ym_pg_fill']) ? (integer)$polygon['ym_pg_fill'] : UNIMAPS_POLYGON_FILL,
+              'ym_pg_fill' => !empty($polygon['ym_pg_fill']) ? (integer)$polygon['ym_pg_fill'] : UNIMAPS_POLYGON_FILL,
               'ym_pg_fillcolor' => !empty($polygon['ym_pg_fillcolor']) ? $polygon['ym_pg_fillcolor'] : UNIMAPS_POLYGON_FILLCOLOR,
               'ym_pg_opacity' => !empty($polygon['ym_pg_opacity']) ? $polygon['ym_pg_opacity'] : UNIMAPS_POLYGON_OPACITY,
               'ym_pg_drag' => 1,
@@ -698,7 +648,11 @@ dpm($items);
           if (isset($options['behaviors']['dblclickzoom'])) $params['dblclickzoom'] = 1;
           if (isset($options['behaviors']['multitouch'])) $params['multitouch'] = 1;
 
-dpm($params);
+           // вызов hook_unimapsapi() с $op = ''
+           $object->options = $params;
+           unimaps_invoke_unimapsapi($object, 'map', 'node');
+           $params = $object->options;
+
 
           // вывести карту
           _unimaps_show_map($map_id, $params);
@@ -710,43 +664,11 @@ dpm($params);
   return $element;
 }
 
-/**
- * Element validation.
- */
-function unimaps_map_check($element, &$form_state) {
-/*
-  global $params;
-
-dpm($element);
-dpm($form_state);
-
-  $bundle = (isset($form_state['values']['type'])) ? $form_state['values']['type'] : $form_state['values']['instance']['bundle']; 
-
-  $field_name = unimaps_get_fields($bundle);
-
-  $lat = $form_state['values'][$field_name][LANGUAGE_NONE][0]['lat'];
-  $lng = $form_state['values'][$field_name][LANGUAGE_NONE][0]['lng'];
-
-  if (empty($lat) || $lat == UNIMAPS_LATITUDE || empty($lng) || $lng == UNIMAPS_LONGITUDE) {
-    form_set_error('map', t('Map error!'));
-
-    $unimaps_params = unserialize($form_state['values'][$field_name][LANGUAGE_NONE][0]['_unimaps_params']);
-
-//dpm($unimaps_params);
-
-    // вывести карту
-//    _unimaps_show_map($params['map_id'], $params);
-  }
-*/
-}
-
 
 /**
  * Implements hook_field_presave().
  */
 function unimaps_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-
-dpm($items);
 
   foreach ($items AS $delta => $item) {
 
@@ -758,8 +680,6 @@ dpm($items);
       }
     }
     $item['data'] = serialize($data);
-
-dpm($item['data']);
 
     if (is_array($item['descr'])) {
       $descr = $item['descr']['value'];
@@ -775,11 +695,8 @@ dpm($item['data']);
  * Implements hook_field_widget_error().
  */
 function unimaps_field_widget_error($element, $error, $form, &$form_state) {
-//  switch ($error['error']) {
-//    case 'unimaps_invalid':
-      form_error($element, $error['message']);
-//      break;
-//  }
+
+  form_error($element, $error['message']);
 }
 
 // Определение названий полей, используемых в текущем материале
@@ -793,13 +710,24 @@ function unimaps_get_fields($bundle = NULL, $field = TRUE) {
   }
 }
 
-// получение названия типа материала
-function unimaps_field_bundle_name($form_id = '', $form) {
+// Формирование значений по умолчанию для списка чекбоксов в параметрах карты
+function unimaps_default_options() {
 
-//dpm($form_id);
+  return array(
+    'controls' => array('maptools' => 'maptools', 'typecontrol' => 'typecontrol'),
+    'behaviors' => array('drag' => 'drag', 'scrollzoom' => 'scrollzoom', 'dblclickzoom' => 'dblclickzoom', 'multitouch' => 'multitouch'),
+  );
+}
 
-  if ($form_id == 'field_ui_field_edit_form') $bundle = $form['#instance']['bundle'];
-  elseif (preg_match('/.+_node_form$/', $form_id)) $bundle = $form['#node']->type;
+// Декодирование строки в массив координат вершин (только для линий и полигонов)
+function unimaps_coords_decode($coords = '') {
 
-  if (isset($bundle)) return $bundle;
+  $points = array();
+  if (!empty($coords)) preg_match_all('/\[\s*(\d+.?\d+)\s*?,\s*?(\d+.?\d+)\s*\]/s', $coords, $matches);
+  if (isset($matches)) foreach($matches[0] as $k => $v) {
+    $points[$k]['lat'] = $matches[1][$k];
+    $points[$k]['lng'] = $matches[2][$k];
+  }
+
+  return $points;
 }

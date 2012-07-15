@@ -143,6 +143,7 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
       '#default_value' => !empty($this->options['options']['behaviors']) ? $this->options['options']['behaviors'] : array('drag', 'scrollzoom', 'dblclickzoom', 'multitouch'),
     );
 
+/*
     // стиль по умолчанию
     $form['plugin_style'] = array(
       '#type' => 'select',
@@ -150,7 +151,7 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
       '#description' => t('Style of plugin'),
       '#default_value' => !empty($this->options['plugin_style']) ? $this->options['plugin_style'] : UNIMAPS_PLUGIN_STYLE,
       '#options' => array(
-        'placemarks' => t('Placemarks'),
+        'default' => t('Default'),
       ),
       '#disabled' => TRUE,
     );
@@ -167,6 +168,7 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
       $form['plugin_type']['#options']['routes'] = t('Routes');
       $form['plugin_type']['#disabled'] = FALSE;
     }
+*/
 
   }
 
@@ -194,6 +196,8 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
     }
     unset($this->options['options']);
     unset($this->options['grouping']);
+    unset($this->options['polyline']);
+    unset($this->options['polygon']);
 
     $this->options['map_delta'] = 0;
 
@@ -208,24 +212,9 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
     $this->options['map_id'] = $map_id;
 
     // список меток
-    if ($plugin_style == 'placemarks') {
-      $this->options['placemarks'] = unimaps_views_get_objects($this->view->result, $handlers);
+    if ($plugin_style == 'default') {
+      if (user_access('view placemark')) $this->options += unimaps_views_get_objects($this->view->result, $handlers);
     }
-    else if ($plugin_style == 'lines') {
-      $this->options['lines'] = unimaps_views_convert2polyline($this->view->result, $handlers);
-    }
-    else if ($plugin_style == 'polygones') {
-      $this->options['polygones'] = unimaps_views_convert2polygon($this->view->result, $handlers);
-    }
-
-//dpm($this->options['lines']);
-
-    // идентификаторы полей меток в форме редактирования ноды
-//    $this->options['lat_id'] = 'edit-pm-lat';
-//    $this->options['lng_id'] = 'edit-pm-lng';
-
-    // выводить ли поисковую форму
-    $this->options['search_form'] = (module_exists('unimaps_geocoder') && !module_exists('unimaps_blocks') && $this->options['search'] == 'form') ? drupal_get_form('unimaps_geocoder_search_form') : '';
 
     if (module_exists('unimaps_click')) {
       $this->options['can_add'] = UNIMAPS_CAN_ADD_PLACEMARKS;
@@ -237,26 +226,14 @@ class unimaps_views_plugin_style_ymap extends views_plugin_style {
       $this->options['add'] = $this->options['click'] = FALSE;
     }
 
-    // вызов hook_unimapsapi() с $op = 'options'
-//    unimaps_invoke_unimapsapi($this, 'options');
-
-dpm($this->options);
-
-
     // вызов hook_unimapsapi() с $op = 'map'
-//    unimaps_invoke_unimapsapi($this, 'map');
-
-
-
-    // вызов hook_unimapsapi() с $op = 'view'
-//    unimaps_invoke_unimapsapi($this, 'view');
+    unimaps_invoke_unimapsapi($this, 'map');
 
     if (!empty($this->view->display[$display]->display_options['path'])) $this->options['path'] = url($this->view->display[$display]->display_options['path']);
 
     _unimaps_show_map($map_id, $this->options);
 
     $this->options['map_name'] = $this->view->current_display;
-//    $this->options['map_id'] = $params['map_id'];
 
     return theme($this->theme_functions(), array(
       'view' => $this->view,

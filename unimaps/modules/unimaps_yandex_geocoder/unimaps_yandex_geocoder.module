@@ -59,9 +59,10 @@ function unimaps_yandex_geocoder_form_alter(&$form, &$form_state, $form_id) {
   if (user_access('insert map in node edit form')) {
 
     // Определение типа материала, в котором используется поле
-    $bundle = unimaps_field_bundle_name($form_id, $form);
+    if ($form_id == 'field_ui_field_edit_form') $bundle = $form['#instance']['bundle'];
+    elseif (preg_match('/.+_node_form$/', $form_id)) $bundle = $form['#node']->type;
 
-    // НЕ выводить для линий, полигонов и окружностей
+    // НЕ выводить поле геокодера для линий и полигонов
     if (user_access('use yandex geocoder') && isset($bundle) && !in_array($bundle, array('ym_polyline', 'ym_polygon'))) {
 
       // определение названия поля

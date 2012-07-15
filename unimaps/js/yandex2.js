@@ -12,7 +12,7 @@ function init() {
   // Если задано НЕСКОЛЬКО карт - инициализировать КАЖДУЮ из них
   if (options) $.each(options, function(map_id, map_options) {
 
-console.log(map_options);
+//console.log(map_options);
 
     //  Создание коллекции геообъектов
     group = new ymaps.GeoObjectCollection();
@@ -89,6 +89,8 @@ console.log(map_options);
         // Получение заданного адреса из соотв. поля
         var adr = $(map_options.addr_id + '.form-text').val();
 
+        $('#geocoder-result-' + map_options.map_delta).prepend().html('Выполняется запрос к серверу...');
+
         // Запрос геокодера на получение координат для заданного адреса
         $.get('/unimaps/gc_ajax/' + adr, function(data) {
 
@@ -99,7 +101,17 @@ console.log(map_options);
             $(map_options.lat_id).val(lat);
             $(map_options.lng_id).val(lng);
 
-            $('#geocoder-result-' + map_options.map_delta).prepend().html('<p class="geocoder-found">Найден объект: ' + data[0].text + '</p>');
+            $('#geocoder-result-' + map_options.map_delta).prepend().html('<span class="geocoder-found">Найден объект: ' + data[0].text + '</span>');
+
+            // Если на карте УЖЕ имеется геообъект
+            if ($(map_options.lat_id).val() == '' && $(map_options.lat_id).val() == '') {
+              // Изменение координат геообъекта на полученные из геокодера
+              groups[map_options.map_delta].each(function(obj) {
+                obj.geometry.setCoordinates([lat, lng]);
+              });
+            }
+            // Иначе создать геообъект по координатам геокодера
+            else newGeoObject(map, map_options, groups, lat, lng);
 
             // Изменение координат центра карты на полученные из геокодера
             map.panTo(
@@ -109,16 +121,6 @@ console.log(map_options);
               flying: true
               }
             );
-
-            // Если на карте УЖЕ имеется геообъект
-            if ($(map_options.lat_id).val() == '' && $(map_options.lat_id).val() == '')  {
-              // Изменение координат геообъекта на полученные из геокодера
-              groups[map_options.map_delta].each(function(obj) {
-                obj.geometry.setCoordinates([lat, lng]);
-              });
-            }
-            // Иначе созать геообъект по координатам геокодера
-            else newPlacemark(map, map_options, groups, lat, lng);
 
           }
           else $('#geocoder-result-' + map_options.map_delta).prepend().html('<p class="geocoder-error">Заданный объект НЕ найден!</p>');
@@ -348,7 +350,7 @@ console.log(map_options);
   // Создание на карте линии с заданными координатами вершин
   function createPolyline(map, options, id, pl) {
 
-console.log(pl);
+//console.log(pl);
 
     var points = new Array();
     if (pl) $.each(pl.points, function(id, p) {
@@ -566,6 +568,7 @@ console.log(pl);
         // использовать пользовательскую иконку метки, заданную в соотв. поле
         cust_icon: ($(options.cust_icon_id).val()) ? $(options.cust_icon_id).val() : options.add_cust_icon,
       }
+      createPlacemark(map, options, 0, pm);
     }
     else if (options.map_style == 'lines') {
 
@@ -582,6 +585,7 @@ console.log(pl);
         ym_pl_width: options.lines[0].ym_pl_width,
         ym_pl_color: options.lines[0].ym_pl_color,
       }
+      createPolyline(map, options, 0, pm);
     }
     else if (options.map_style == 'polygones') {
 
@@ -600,12 +604,8 @@ console.log(pl);
         ym_pg_fill: options.polygones[0].ym_pg_fill,
         ym_pg_fillcolor: options.polygones[0].ym_pg_fillcolor,
       }
+      createPolygon(map, options, 0, pm);
     }
-
-    // Создание на карте геообъекта с координатами точки клика
-    if (options.map_style == 'placemarks') createPlacemark(map, options, 0, pm);
-    else if (options.map_style == 'lines') createPolyline(map, options, 0, pm);
-    else if (options.map_style == 'polygones') createPolygon(map, options, 0, pm);
 
   }
 
