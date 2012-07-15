@@ -13,7 +13,7 @@ function unimaps_field_info() {
     'unimaps_latlng' => array(
       'label' => t('Unimaps'),
       'description' => t('Unimaps input.'),
-      'default_widget' => 'unimaps_latlng',
+      'default_widget' => 'unimaps_yandex',
       'default_formatter' => 'unimaps_yandex',
     ),
   );
@@ -80,7 +80,6 @@ function unimaps_field_is_empty($item, $field) {
  */
 function unimaps_field_formatter_info() {
   return array(
-
     'unimaps_text' => array(
       'label' => t('Lat/Lng formatter'),
       'field types' => array('unimaps_latlng'),
@@ -120,37 +119,6 @@ function unimaps_field_formatter_view($entity_type, $entity, $field, $instance, 
   $element = array();
 
   switch ($display['type']) {
-
-    case 'unimaps_text':
-      foreach ($items as $delta => $item) {
-        $element[$delta]['#markup'] = '<p>' . t('Coordinates is @lat, @lng', array('@lat' => $item['lat'], '@lng' => $item['lng'])) . '</p>';
-      }
-      break;
-    case 'unimaps_latitude':
-      foreach ($items as $delta => $item) {
-        $element[$delta]['#markup'] = $item['lat'];
-      }
-      break;
-    case 'unimaps_longitude':
-      foreach ($items as $delta => $item) {
-        $element[$delta]['#markup'] = $item['lng'];
-      }
-      break;
-    case 'unimaps_name':
-      foreach ($items as $delta => $item) {
-        $element[$delta]['#markup'] = $item['name'];
-      }
-      break;
-    case 'unimaps_descr':
-      foreach ($items as $delta => $item) {
-        $element[$delta]['#markup'] = $item['descr'];
-      }
-      break;
-    case 'unimaps_yandex_icon':
-      foreach ($items as $delta => $item) {
-        $element[$delta]['#markup'] = $item['yandex_icon'];
-      }
-      break;
     case 'unimaps_yandex':
 
       foreach ($items as $delta => $item) {
@@ -410,6 +378,7 @@ function unimaps_field_widget_form(&$form, &$form_state, $field, $instance, $lan
     );
 
     switch ($instance['widget']['type']) {
+
       case 'unimaps_yandex':
 
           // выводить форму редактирования только при наличии у юзера соотв. прав
