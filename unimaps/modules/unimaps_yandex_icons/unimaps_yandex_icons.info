@@ -1,0 +1,7 @@
+name = Unimaps Yandex icons pack
+description = Yandex Maps standard icons pack.
+package = Unimaps
+core = 7.x
+php = 5.2
+
+dependencies[] = unimaps

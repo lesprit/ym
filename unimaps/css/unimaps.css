@@ -1,0 +1,58 @@
+.YMaps-placemark .YMaps-b-balloon-wrap table.YMaps-b-balloon-frame {
+/*	width: 200px;*/
+	width: auto;
+	border: none;
+	margin: 0;
+}
+
+.YMaps-balloon .YMaps-b-balloon-wrap table.YMaps-b-balloon-frame {
+	width: 200px;
+	border: none;
+	margin: 0;
+}
+
+table.YMaps-b-balloon-frame tbody {
+	border: none;
+}
+
+table.YMaps-b-balloon-frame tr td {
+	padding: 0;
+}
+
+.YMaps-b-balloon-content {
+/*	overflow: hidden;*/
+/*	width: 100px;*/
+/*	height: 10px;*/
+	max-width: 300px;
+	max-height: 300px;
+}
+
+.YMaps-b-balloon-content div {
+ 	width: 100%;
+}
+
+#unimaps-mobile-search-form .form-item {
+	display: inline;
+}
+
+#unimaps-navigation-form input.form-submit {
+	background: none;
+	border-style: none;
+	border-width: 0;
+	border: none;
+	padding: 0;
+	margin: 0;
+	
+}
+
+.geocoder-found {
+  color: #00ff33;
+}
+
+.geocoder-error{
+  color: #ff0000;
+}
+
+.unimaps-delete {
+  margin-top: 20px;
+}

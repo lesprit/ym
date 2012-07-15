@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * Implements hook_init().
+ */
+function unimaps_yandex_icons_init() {
+
+  if (unimaps_yandex_icons_access()) {
+
+    drupal_add_js(drupal_get_path('module', 'unimaps_yandex_icons') . '/js/jquery.ddslick.pack.js');
+    drupal_add_js(drupal_get_path('module', 'unimaps_yandex_icons') . '/js/yandex2_icons.js');
+
+    drupal_add_css(drupal_get_path('module', 'unimaps_yandex_icons') . '/unimaps_yandex_icons.css');
+  }
+}
+
+function unimaps_yandex_icons_js_alter(&$javascript){
+
+  // ¬ключаетс€ только на странице добавлени€ или редактировани€ ноды
+  // и при наличии у юзера соотв. прав
+  if (unimaps_yandex_icons_access()) {
+
+    // дл€ страницы с ddslick подключение вместо встроенного jquery 1.7.2
+    $javascript['misc/jquery.js']['data']    = 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js';
+    $javascript['misc/jquery.js']['version'] = '1.7.2';
+
+  }
+
+}
+
+function unimaps_yandex_icons_access() {
+
+  return user_access('select yandex icon') && ((arg(0) == 'node' && (is_numeric(arg(1)) || arg(1) == 'add')) || arg(0) == 'admin' && arg(1) == 'structure' && arg(2) == 'types' && arg(5) == 'fields' && arg(7) == 'field-settings');
+}
+
+/*
+$element['upload'] = array(
+    '#name' => 'files[' . implode('_', $element['#parents']) . ']',
+    '#type' => 'file',
+    '#title' => t('Choose a file'),
+    '#title_display' => 'invisible',
+    '#size' => 22,
+    '#theme_wrappers' => array(),
+    '#weight' => -10,
+  );
+*/

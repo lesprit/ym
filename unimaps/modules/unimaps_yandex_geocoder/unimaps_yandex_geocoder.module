@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * Implementation of hook_permission().
+ */
+function unimaps_yandex_geocoder_permission() {
+
+  return array(
+    'use yandex geocoder' => array(
+      'title' => t('Use Yandex geocoder'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function unimaps_yandex_geocoder_menu() {
+  
+  return array(
+    'unimaps/gc_ajax' => array(
+      'page callback' => 'yandex_geocoder_ajax',
+      'page arguments' => array(2),
+      'access arguments' => array('use yandex geocoder'),
+      'type' => MENU_CALLBACK,
+    ),
+
+  );
+}
+
+// Вывод поля геокодера в форме
+function unimaps_show_geocoder($id) {
+
+  $form['result'] = array(
+    '#type' => 'item',
+    '#markup' => '<div id="geocoder-result-' . $id . '"></div>',
+  );
+
+  $form['address'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Address'),
+    '#size' => 60,
+    '#maxlength' => 128,
+    '#prefix' => '<div id="edit-addr-' . $id . '">',
+  );
+
+  $form['locate'] = array(
+    '#type' => 'button',
+    '#value' => t('Locate'),
+    '#suffix' => '</div>',
+  );
+
+  return $form;
+}
+
+// Добавление геокодера в форму редактирования ноды и настройки поля
+function unimaps_yandex_geocoder_form_alter(&$form, &$form_state, $form_id) {
+
+  if (user_access('insert map in node edit form')) {
+
+    // Определение типа материала, в котором используется поле
+    $bundle = unimaps_field_bundle_name($form_id, $form);
+
+    // НЕ выводить для линий, полигонов и окружностей
+    if (user_access('use yandex geocoder') && isset($bundle) && !in_array($bundle, array('ym_polyline', 'ym_polygon'))) {
+
+      // определение названия поля
+      $field_name = unimaps_get_fields($bundle);
+
+      // для ноды - добавление геокодера в каждое из значений поля
+      if (!empty($form[$field_name])) foreach($form[$field_name][LANGUAGE_NONE] as $id => $item) {
+        if (in_array($id, element_children($form[$field_name][LANGUAGE_NONE])) && is_numeric($id)) {
+          $form[$field_name][LANGUAGE_NONE][$id] += unimaps_show_geocoder($id);
+        }
+      }
+
+      // для формы настройки поля - добавление геокодера к значениям по умолчанию
+      else {
+        if (isset($form['instance']['default_value_widget'][$field_name])) $form['instance']['default_value_widget'][$field_name][LANGUAGE_NONE][0] += unimaps_show_geocoder(0);
+      }
+    }
+
+  }
+}
+
+// Выполение ajax-запроса для определения координат объекта по его адресу
+function yandex_geocoder_ajax($adr) {
+
+  return drupal_json_output(unimaps_yandex_geocoder_getlatlng($adr));
+}
+
+// Определение координат объекта по его адресу (геокодирование)
+function unimaps_yandex_geocoder_getlatlng($adr) {
+
+  $adr = preg_replace('/\s+/is', '+', $adr);
+
+  $url = 'http://geocode-maps.yandex.ru/1.x/';
+  $data = '?geocode=' . check_plain($adr);
+
+  // ограничить кол-во выводимых результатов поиска
+  $res = variable_get('unimaps_yandex_geocoder_results', 10);
+  $results = ($res > 0) ? '&results=' . $res : '';
+
+  $response = drupal_http_request($url . $data . $results);
+  $geocode_xml = $response->data;
+
+  $xml = simplexml_load_string($geocode_xml);
+
+  if (!empty($xml->message)) {
+    drupal_set_message(check_plain('Ошибка сервера: ' . (string) $xml->status . ' ' . (string) $xml->message), 'error');
+  }
+
+  $request = (string) $xml->GeoObjectCollection->metaDataProperty->GeocoderResponseMetaData->request;
+  // разделение запроса на массив объектов
+  $obj = explode(',', $request);
+
+  $result = array();
+
+  if ($xml->GeoObjectCollection->metaDataProperty->GeocoderResponseMetaData->results > 0) {
+
+    // создание массива найденных объектов
+    $i = 0;
+    foreach ($xml->GeoObjectCollection->featureMember as $key => $point) {
+
+      $p = $point->GeoObject->metaDataProperty->GeocoderMetaData;
+
+      // получение названия найденного населенного пункта
+      $city = ((string) $p->AddressDetails->Country->Locality->LocalityName)
+
+              // для столицы государства
+              ? (string) $p->AddressDetails->Country->Locality->LocalityName
+
+              // для остальных городов
+              : (string) $p->AddressDetails->Country->AdministrativeArea->Locality->LocalityName;
+
+        $lng_lat = (string) $point->GeoObject->Point->pos;
+
+        $ll = explode(' ', $lng_lat);
+
+        $result[$i]['kind'] = (string) $p->kind;
+        $result[$i]['lng'] = $ll[0];
+        $result[$i]['lat'] = $ll[1];
+        $result[$i]['city'] = $city;
+        $result[$i]['text'] = (string) $p->text;
+        $result[$i]['city'] = !empty($p->AddressDetails->Country->Locality->LocalityName) ? (string) $p->AddressDetails->Country->Locality->LocalityName : (string) $p->AddressDetails->Country->AdministrativeArea->Locality->LocalityName;
+        $result[$i]['street'] = !empty($p->AddressDetails->Country->Locality->DependentLocality->Thoroughfare->ThoroughfareName) ? (string) $p->AddressDetails->Country->Locality->DependentLocality->Thoroughfare->ThoroughfareName : (string) $p->AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->ThoroughfareName;
+        $result[$i++]['house'] = !empty($p->AddressDetails->Country->Locality->DependentLocality->Thoroughfare->Premise->PremiseNumber) ? (string) $p->AddressDetails->Country->Locality->DependentLocality->Thoroughfare->Premise->PremiseNumber : (string) $p->AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber;
+    }
+  }
+
+  return $result;
+}

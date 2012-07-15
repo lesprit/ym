@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the unimaps module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ */
+function unimaps_field_schema($field) {
+  $columns = array(
+    'lat' => array(
+      'description' => 'Stores the latitude value',
+      'type' => 'float',
+      'size' => 'big',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'lng' => array(
+      'description' => 'Stores the longitude value',
+      'type' => 'float',
+      'size' => 'big',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'name' => array(
+      'description' => 'Stores the name',
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+    'descr' => array(
+      'description' => 'Stores the description',
+      'type' => 'varchar',
+      'length' => 512,
+      'not null' => FALSE,
+    ),
+    'yandex_icon' => array(
+      'description' => 'Stores the Yandex icon',
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+    'data' => array(
+      'description' => 'Stores the data value',
+      'type' => 'varchar',
+      'length' => 2048,
+      'not null' => FALSE,
+    ),
+/*
+    'coords' => array(
+      'description' => 'Stores the coords of shapes',
+      'type' => 'varchar',
+      'length' => 1024,
+      'not null' => FALSE,
+    ),
+*/
+  );
+  $indexes = array(
+    'lat' => array('lat'),
+    'lng' => array('lng'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function unimaps_uninstall() {
+  db_delete('variable')
+    ->condition('name', 'unimaps_%', 'LIKE')
+    ->execute();
+}

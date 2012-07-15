@@ -1,0 +1,8 @@
+name = Unimaps Yandex maps lines & polygones
+description = Yandex Maps lines & polygones support.
+package = Unimaps
+core = 7.x
+php = 5.2
+
+dependencies[] = unimaps
+;dependencies[] = jquery_colorpicker

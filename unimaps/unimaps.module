@@ -1,0 +1,167 @@
+<?php
+
+// Параметры карты по умолчанию 
+define('UNIMAPS_LATITUDE',      '55.760000');
+define('UNIMAPS_LONGITUDE',     '37.640000');
+define('UNIMAPS_MAP_HEIGHT',    300);
+define('UNIMAPS_MAP_WIDTH',     300);
+define('UNIMAPS_YMAP_TYPE',     'MAP');
+define('UNIMAPS_YMAP_ZOOM',     12);
+
+define('UNIMAPS_YANDEX_ICON',   'default#lightblueSmallPoint');
+define('UNIMAPS_YANDEX2_ICON',  'twirl#blueIcon');
+
+// Параметры по умолчанию для панелей и элементов управления
+define('UNIMAPS_YMAP_ZOOMTYPE', 'SMALL');
+define('UNIMAPS_YMAP_TYPECONTROL', TRUE);
+define('UNIMAPS_YMAP_SCALELINE', TRUE);
+define('UNIMAPS_YMAP_MAPTOOLS',  TRUE);
+define('UNIMAPS_YMAP_MINIMAP',   FALSE);
+define('UNIMAPS_YMAP_SEARCH',    FALSE);
+define('UNIMAPS_YMAP_TRAFFIC',   FALSE);
+
+// Настройка поведения карты
+define('UNIMAPS_YMAP_DRAG',      TRUE);
+define('UNIMAPS_YMAP_SCROLL_ZOOM', TRUE);
+define('UNIMAPS_YMAP_DBLCLICK_ZOOM', TRUE);
+define('UNIMAPS_YMAP_MULTITOUCH', TRUE);
+
+// Количество разрешенных к добавлению при помощи клика геообъектов
+define('UNIMAPS_CAN_ADD_PLACEMARKS',    1);
+
+define('UNIMAPS_YMAP_LIST',      FALSE);
+define('UNIMAPS_YMAP_NUMBERS',   FALSE);
+
+// Расположение по умолчанию файла .js
+define('UNIMAPS_YANDEX_JS',       drupal_get_path('module', 'unimaps') . '/js/yandex.js');
+define('UNIMAPS_YANDEX2_JS',      drupal_get_path('module', 'unimaps') . '/js/yandex2.js');
+
+
+// Загрузка кода для работы с Fields API
+module_load_include('inc', 'unimaps', 'unimaps.field');
+
+/**
+ * Implementation of hook_permission().
+ */
+function unimaps_permission() {
+
+  return array(
+    'administer unimaps' => array(
+      'title' => t('Administer unimaps maps'),
+    ),
+    'view placemark' => array(
+      'title' => t('View placemark'),
+    ),
+    'view balloon content' => array(
+      'title' => t('View balloon content'),
+    ),
+    'insert map in node edit form' => array(
+      'title' => t('Insert map in node edit form'),
+    ),
+    'add placemark' => array(
+      'title' => t('Add placemark'),
+    ),
+    'edit placemark' => array(
+      'title' => t('Edit placemark'),
+    ),
+    'remove placemark' => array(
+      'title' => t('Remove placemark'),
+    ),
+    'select yandex icon' => array(
+      'title' => t('Select placemark icon'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function unimaps_init() {
+
+  drupal_add_css(drupal_get_path('module', 'unimaps') . '/css/unimaps.css');
+
+//  if (arg(0) == 'node' && is_numeric() && arg(2) == 'edit')
+}
+
+/**
+ * Implements hook_menu().
+ */
+function unimaps_menu() {
+
+  $items = array();
+
+  $items['admin/config/media/unimaps'] = array(
+    'title' => 'Unimaps config',
+    'description' => 'Settings for unimaps module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('unimaps_settings_form'),
+    'access arguments' => array('administer unimaps'),
+    'file' => 'unimaps.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function unimaps_theme() { 
+
+  return array(
+    'unimaps' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'unimaps.theme.inc',
+    ),
+
+    'unimaps_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'unimaps.theme.inc',
+    ),
+    'unimaps_formatter_yandex_maps' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'unimaps.theme.inc',
+    ),
+    'unimaps_formatter_latitude_only' => array(
+      'arguments' => array('latitude'),
+      'file' => 'unimaps.theme.inc',
+    ),
+    'unimaps_formatter_longitude_only' => array(
+      'arguments' => array('longitude'),
+      'file' => 'unimaps.theme.inc',
+    ),
+    'unimaps_distance' => array(
+      'template' => 'unimaps_distance',
+      'arguments' => array('distance' => 0, 'units' => t('km')),
+      'file' => 'unimaps.theme.inc',
+    ),
+
+  );
+}
+
+// Вывод карты
+function _unimaps_show_map($map_id, $params, $lang = 'ru-RU') {
+  static $initialized = FALSE;
+
+  if (!$initialized) {
+
+    drupal_add_js('http://api-maps.yandex.ru/2.0/?load=package.full&modules=pmap&mode=debug&lang=' . $lang . '&wizard=Drupal7_Unimaps_RU', 'external');
+
+    $js = _yandex_maps_get_js();
+    if (!empty($js)) drupal_add_js($js);
+
+    $js = _yandex_maps_get_js();
+
+    if (!empty($js)) drupal_add_js($js);
+
+    $initialized = TRUE;
+  }
+
+  drupal_add_js(array('yandex_maps' => array($map_id => $params)), 'setting');
+}
+
+function _yandex_maps_get_js() {
+
+  $yandex_js = variable_get('unimaps_yandex_js', UNIMAPS_YANDEX2_JS);
+
+  return file_exists($yandex_js) ? $yandex_js : '';
+}

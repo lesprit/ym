@@ -1,0 +1,511 @@
+<?php
+
+// Параметры фигур по умолчанию 
+define('UNIMAPS_POLYLINE_TYPE',      'shortdash');
+define('UNIMAPS_POLYLINE_NAME',      'Моя линия');
+define('UNIMAPS_POLYLINE_DESCR',     'Мое описание');
+define('UNIMAPS_POLYLINE_COLOR',     '336699');
+define('UNIMAPS_POLYLINE_WIDTH',     5);
+define('UNIMAPS_POLYLINE_OPACITY',   0.5);
+define('UNIMAPS_POLYLINE_DRAG',      1);
+
+define('UNIMAPS_POLYGON_STYLE',     'shortdash');
+define('UNIMAPS_POLYGON_NAME',      'Мой многоугольник');
+define('UNIMAPS_POLYGON_DESCR',     'Мое описание');
+define('UNIMAPS_POLYGON_COLOR',     '336699');
+define('UNIMAPS_POLYGON_FILL',      1);
+define('UNIMAPS_POLYGON_FILLCOLOR', '996633');
+define('UNIMAPS_POLYGON_WIDTH',     5);
+define('UNIMAPS_POLYGON_OPACITY',   0.5);
+define('UNIMAPS_POLYGON_DRAG',      1);
+
+
+/**
+ * Implements hook_init().
+ */
+function unimaps_yandex_shapes_init() {
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function unimaps_yandex_shapes_node_info() {
+  return array(
+    'ym_polyline' => array(
+      'name' => t('Yandex map polyline'),
+      'base' => 'ym_polyline',
+      'locked' => FALSE,
+      'description' => t('Use for drawing polylines at Yandex maps.'),
+    ),
+    'ym_polygon' => array(
+      'name' => t('Yandex map polygon'),
+      'base' => 'ym_polygon',
+      'locked' => FALSE,
+      'description' => t('Use for drawing polygones at Yandex maps.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function unimaps_yandex_shapes_form_alter(&$form, &$form_state, $form_id) {
+
+  if ($form_id == 'node_type_form') {
+
+    if ($form['base']['#value'] == 'ym_polyline') {
+      $options = array(
+        'ym_pl_type' => variable_get('unimaps_ym_pl_type', UNIMAPS_POLYLINE_TYPE),
+        'ym_pl_name' => variable_get('unimaps_ym_pl_name', UNIMAPS_POLYLINE_NAME),
+        'ym_pl_descr' => variable_get('unimaps_ym_pl_descr', UNIMAPS_POLYLINE_DESCR),
+        'ym_pl_color' => variable_get('unimaps_ym_pl_color', UNIMAPS_POLYLINE_COLOR),
+        'ym_pl_width' => variable_get('unimaps_ym_pl_width', UNIMAPS_POLYLINE_WIDTH),
+        'ym_pl_opacity' => variable_get('unimaps_ym_pl_opacity', UNIMAPS_POLYLINE_OPACITY),
+        'ym_pl_drag' => variable_get('unimaps_ym_pl_drag', UNIMAPS_POLYLINE_DRAG),
+      );
+
+      $form['submission'] += unimaps_yandex_polyline_form($options);
+      $form['#validate'][] = 'ym_polyline_type_form_validate';
+      $form['#submit'][] = 'ym_polyline_type_form_submit';
+    }
+
+    elseif ($form['base']['#value'] == 'ym_polygon') {
+      $options = array(
+        'ym_pg_style' => variable_get('unimaps_ym_pg_style', UNIMAPS_POLYGON_STYLE),
+        'ym_pg_name' => variable_get('unimaps_ym_pg_name', UNIMAPS_POLYGON_NAME),
+        'ym_pg_descr' => variable_get('unimaps_ym_pg_descr', UNIMAPS_POLYGON_DESCR),
+        'ym_pg_color' => variable_get('unimaps_ym_pg_color', UNIMAPS_POLYGON_COLOR),
+        'ym_pg_width' => variable_get('unimaps_ym_pg_width', UNIMAPS_POLYGON_WIDTH),
+        'ym_pg_fill' => variable_get('unimaps_ym_pg_fill', UNIMAPS_POLYGON_FILL),
+        'ym_pg_fillcolor' => variable_get('unimaps_ym_pg_fillcolor', UNIMAPS_POLYGON_FILLCOLOR),
+        'ym_pg_opacity' => variable_get('unimaps_ym_pg_opacity', UNIMAPS_POLYGON_OPACITY),
+        'ym_pg_drag' => variable_get('unimaps_ym_pg_drag', UNIMAPS_POLYGON_DRAG),
+      );
+
+      $form['submission'] += unimaps_yandex_polygon_form($options);
+      $form['#validate'][] = 'ym_polygon_type_form_validate';
+      $form['#submit'][] = 'ym_polygon_type_form_submit';
+    }
+
+    elseif ($form['base']['#value'] == 'ym_circle') {
+    }
+
+  }
+
+}
+
+function ym_polyline_type_form_validate($form_state, $form_id) {
+//  dpm($form_state['submission']['polyline']);
+}
+
+function ym_polyline_type_form_submit($form_state, $form_id) {
+
+  $pl = $form_state['submission']['polyline'];
+
+//  dpm($pl);
+
+  if (!empty($pl['ym_pl_type']['#value'])) {
+    variable_set('unimaps_ym_pl_type', check_plain($pl['ym_pl_type']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_name']['#value'])) {
+    variable_set('unimaps_ym_pl_name', check_plain($pl['ym_pl_name']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_descr']['#value'])) {
+    variable_set('unimaps_ym_pl_descr', check_plain($pl['ym_pl_descr']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_color']['#value'])) {
+    variable_set('unimaps_ym_pl_color', check_plain($pl['ym_pl_color']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_width']['#value'])) {
+    variable_set('unimaps_ym_pl_width', check_plain($pl['ym_pl_width']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_fill']['#value'])) {
+    variable_set('unimaps_ym_pl_fill', check_plain($pl['ym_pl_fill']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_fillcolor']['#value'])) {
+    variable_set('unimaps_ym_pl_fillcolor', check_plain($pl['ym_pl_fillcolor']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_opacity']['#value'])) {
+    variable_set('unimaps_ym_pl_opacity', check_plain($pl['ym_pl_opacity']['#value']));
+  }
+
+  if (!empty($pl['ym_pl_drag']['#value'])) {
+    variable_set('unimaps_ym_pl_drag', check_plain($pl['ym_pl_drag']['#value']));
+  }
+
+}
+
+function ym_polygon_type_form_validate($form_state, $form_id) {
+//  dpm($form_state['submission']['polygon']);
+}
+
+function ym_polygon_type_form_submit($form_state, $form_id) {
+
+  $pg = $form_state['submission']['polygon'];
+
+//  dpm($pg);
+
+  if (!empty($pg['ym_pg_style']['#value'])) {
+    variable_set('unimaps_ym_pg_style', check_plain($pg['ym_pg_style']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_name']['#value'])) {
+    variable_set('unimaps_ym_pg_name', check_plain($pg['ym_pg_name']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_descr']['#value'])) {
+    variable_set('unimaps_ym_pg_descr', check_plain($pg['ym_pg_descr']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_color']['#value'])) {
+    variable_set('unimaps_ym_pg_color', check_plain($pg['ym_pg_color']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_width']['#value'])) {
+    variable_set('unimaps_ym_pg_width', check_plain($pg['ym_pg_width']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_fill']['#value'])) {
+    variable_set('unimaps_ym_pg_fill', check_plain($pg['ym_pg_fill']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_fillcolor']['#value'])) {
+    variable_set('unimaps_ym_pg_fillcolor', check_plain($pg['ym_pg_fillcolor']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_opacity']['#value'])) {
+    variable_set('unimaps_ym_pg_opacity', check_plain($pg['ym_pg_opacity']['#value']));
+  }
+
+  if (!empty($pg['ym_pg_drag']['#value'])) {
+    variable_set('unimaps_ym_pg_drag', check_plain($pg['ym_pg_drag']['#value']));
+  }
+
+}
+
+/**
+ * Implements hook_node_type_update()
+ */
+function unimaps_yandex_shapes_node_type_update($info) {
+
+  if (!empty($info->old_type) && $info->old_type != $info->type) {
+  }
+}
+
+function unimaps_ym_linetypes() {
+
+  return array(
+    'solid' => t('Solid'),
+    'dash' => t('Dash'),
+    'dashdot' => t('DashDot'),
+    'dot' => t('LongDash'),
+    'longdashdot' => t('LongDash-Dot'),
+    'longdashdotdot' => t('LongDash-Dot-Dot'),
+    'shortdash' => t('ShortDash'),
+    'shortdashdot' => t('ShortDash-Dot'),
+    'shortdashdotdot' => t('ShortDash-Dot-Dot'),
+    'shortdot' => t('ShortDot'),
+  );
+}
+
+function unimaps_yandex_polyline_form($options, $delta, $points) {
+  $form = array();
+
+  $form['polyline'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Polyline options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  if (arg(0) != 'node') {
+    // название линии
+    $form['polyline']['ym_pl_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Polyline name'),
+      '#description' => t('Name of polyline'),
+      '#default_value' => !empty($options['ym_pl_name']) ? $options['ym_pl_name'] : UNIMAPS_POLYLINE_NAME,
+    );
+    // описание линии
+    $form['polyline']['ym_pl_descr'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Polyline description'),
+      '#description' => t('Description of polyline'),
+      '#default_value' => !empty($options['ym_pl_descr']) ? $options['ym_pl_descr'] : UNIMAPS_POLYLINE_DESCR,
+    );
+  }
+
+  // тип линии
+  $form['polyline']['ym_pl_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Polyline type'),
+    '#description' => t('Type of polyline'),
+    '#options' => unimaps_ym_linetypes(),
+    '#default_value' => !empty($options['ym_pl_type']) ? $options['ym_pl_type'] : UNIMAPS_POLYLINE_TYPE,
+  );
+  // цвет линии
+  $form['polyline']['ym_pl_color'] = array(
+//    '#type' => module_exists('jquery_colorpicker' && arg(0) == 'node') ? 'jquery_colorpicker' : 'textfield',
+    '#type' => 'textfield',
+    '#title' => t('Stroke color'),
+    '#description' => t('Color of strock'),
+    '#default_value' => !empty($options['ym_pl_color']) ? $options['ym_pl_color'] : UNIMAPS_POLYLINE_COLOR,
+  );
+  // толщина линии
+  $form['polyline']['ym_pl_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Stroke width'),
+    '#description' => t('Width of strock'),
+    '#default_value' => !empty($options['ym_pl_width']) ? $options['ym_pl_width'] : UNIMAPS_POLYLINE_WIDTH,
+  );
+  // прозрачность линии
+  $form['polyline']['ym_pl_opacity'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Stroke opacity'),
+    '#description' => t('Opacity of strock'),
+    '#default_value' => !empty($options['ym_pl_opacity']) ? $options['ym_pl_opacity'] : UNIMAPS_POLYLINE_OPACITY,
+  );
+  // возможность перетаскивания
+  $form['polyline']['ym_pl_drag'] = array(
+    '#type' => 'select',
+    '#title' => t('Polyline dragging'),
+    '#description' => t('Polyline dragging'),
+    '#options' => array(
+      '1' => t('Enabled'),
+      '0' => t('Disabled'),
+    ),
+    '#default_value' => $options['ym_pl_drag'],
+  );
+
+dpm($options);
+
+  // массив координат вершин
+  $form['polyline']['points'] = array(
+    '#type' => 'hidden',
+    '#default_value' => isset($points) ? $points : '',
+    '#prefix' => '<div id="edit-points-' . $delta . '">',
+    '#suffix' => '</div>',
+  );
+
+  return $form;
+}
+
+function unimaps_yandex_polygon_form($options, $delta, $points) {
+  $form = array();
+
+//dpm($options);
+
+  $form['polygon'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Polygon options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  if (arg(0) != 'node') {
+    // название многоугольника
+    $form['polygon']['ym_pg_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Polygon name'),
+      '#description' => t('Name of polyline'),
+      '#default_value' => $options['ym_pg_name'],//!empty($options['ym_pg_name']) ? $options['ym_pg_name'] : UNIMAPS_POLYGON_NAME,
+    );
+    // описание линии
+    $form['polygon']['ym_pg_descr'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Polygon description'),
+      '#description' => t('Description of polygon'),
+      '#default_value' => $options['ym_pg_descr'],//!empty($options['ym_pg_descr']) ? $options['ym_pg_descr'] : UNIMAPS_POLYGON_DESCR,
+    );
+  }
+
+  // стиль многоугольника
+  $form['polygon']['ym_pg_style'] = array(
+    '#type' => 'select',
+    '#title' => t('Polygon style'),
+    '#description' => t('Style of polygon'),
+    '#options' => unimaps_ym_linetypes(),
+    '#default_value' => !empty($options['ym_pg_style']) ? $options['ym_pg_style'] : UNIMAPS_POLYGON_STYLE,
+  );
+  // цвет границы
+  $form['polygon']['ym_pg_color'] = array(
+//    '#type' => module_exists('jquery_colorpicker' && arg(0) == 'node') ? 'jquery_colorpicker' : 'textfield',
+    '#type' => 'textfield',
+    '#title' => t('Stroke color'),
+    '#description' => t('Color of strock'),
+    '#default_value' => !empty($options['ym_pg_color']) ? $options['ym_pg_color'] : UNIMAPS_POLYGON_COLOR,
+  );
+
+  // толщина границы
+  $form['polygon']['ym_pg_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Stroke width'),
+    '#description' => t('Width of strock'),
+    '#default_value' => !empty($options['ym_pg_width']) ? $options['ym_pg_width'] : UNIMAPS_POLYGON_WIDTH,
+  );
+  // имеется ли заливка
+  $form['polygon']['ym_pg_fill'] = array(
+    '#type' => 'select',
+    '#title' => t('Fill'),
+    '#description' => t(''),
+    '#options' => array(
+      1 => t('Yes'),
+      0 => t('No'),
+    ),
+    '#default_value' => isset($options['ym_pg_fill']) ? $options['ym_pg_fill'] : UNIMAPS_POLYGON_FILL,
+  );
+  // цвет заливки
+  $form['polygon']['ym_pg_fillcolor'] = array(
+//    '#type' => module_exists('jquery_colorpicker' && arg(0) == 'node') ? 'jquery_colorpicker' : 'textfield',
+    '#type' => 'textfield',
+    '#title' => t('Fill color'),
+    '#description' => t('Color of fill'),
+    '#default_value' => !empty($options['ym_pg_fillcolor']) ? $options['ym_pg_fillcolor'] : UNIMAPS_POLYGON_FILLCOLOR,
+  );
+  // прозрачность
+  $form['polygon']['ym_pg_opacity'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Polygon opacity'),
+    '#description' => t('Opacity of polygon'),
+    '#default_value' => !empty($options['ym_pg_opacity']) ? $options['ym_pg_opacity'] : UNIMAPS_POLYGON_OPACITY,
+  );
+  // возможность перетаскивания
+  $form['polygon']['ym_pg_drag'] = array(
+    '#type' => 'select',
+    '#title' => t('Polygon dragging'),
+    '#description' => t('Polygon dragging'),
+    '#options' => array(
+      1 => t('Enabled'),
+      0 => t('Disabled'),
+    ),
+    '#default_value' => isset($options['ym_pg_drag']) ? 1 : 0,
+  );
+
+  // массив координат вершин
+  $form['polygon']['points'] = array(
+    '#type' => 'hidden',
+    '#default_value' => isset($points) ? $points : '',
+    '#prefix' => '<div id="edit-points-' . $delta . '">',
+    '#suffix' => '</div>',
+  );
+
+  return $form;
+}
+
+// Определение списка параметров ломаной линии для views
+function unimaps_views_get_polyline($obj, $handlers) {
+
+//dpm($obj);
+
+        // опциональная обрезка name и descr
+//      $pm[$res->nid]['name'] = ($alter_title['trim']) ? check_plain(views_trim_text($alter_title, $res->node_title)) : check_plain($res->node_title);
+//      $pm[$res->nid]['title'] = l($pm[$res->nid]['name'], 'node/' . $res->nid);
+
+  if ($obj) foreach($obj as $id => $value) {
+
+    // для каждой ноды создать отдельную линию
+    foreach($value as $k => $v) {
+      // nid - идентификатор ломаной линии
+      if ($k == 'nid' && is_numeric($v)) $nid = $v;
+      // delta - номер вершины ломаной линии
+      if (preg_match('/^field_data_.+_delta$/', $k) && is_numeric($v)) $delta = $v;
+
+      if (is_numeric($nid)) {
+        // тип линии
+        $pl[$nid]['ym_pl_type'] = 'LineString';
+        // название линии
+        $pl[$nid]['ym_pl_title'] = 'название линии ' . $nid;
+        // описание линии
+        $pl[$nid]['ym_pl_descr'] = 'описание линии ' . $nid;
+        // цвет линии
+        $pl[$nid]['ym_pl_color'] = '#ff6699';
+        // толщина линии
+        $pl[$nid]['ym_pl_width'] = 5;
+        // толщина линии
+        $pl[$nid]['ym_pl_opacity'] = 0.7;
+        // разрешено или нет перетаскивание линии
+        $pl[$nid]['ym_pl_drag'] = 1;
+        // разрешено или нет редактирование линии
+        $pl[$nid]['ym_pl_edit'] = user_access('edit polyline');
+      }
+
+      // для каждой из вершин линии
+      if (is_numeric($nid) && is_numeric($delta)) {
+        // значение широты для вершины линии
+        if (preg_match('/^field_data_.+_lat$/', $k) && !empty($v)) $pl[$nid]['points'][$delta]['lat'] = $v;
+        // значение долготы для вершины линии
+        if (preg_match('/^field_data_.+_lng$/', $k) && !empty($v)) $pl[$nid]['points'][$delta]['lng'] = $v;
+      }
+
+    }
+  }
+
+//  dpm($pl);
+
+  return $pl;
+}
+
+// Определение списка параметров многоугольника для views
+function unimaps_views_get_polygon($obj, $handlers) {
+
+//dpm($obj);
+
+        // опциональная обрезка name и descr
+//      $pm[$res->nid]['name'] = ($alter_title['trim']) ? check_plain(views_trim_text($alter_title, $res->node_title)) : check_plain($res->node_title);
+//      $pm[$res->nid]['title'] = l($pm[$res->nid]['name'], 'node/' . $res->nid);
+
+  // для каждой ноды создать отдельный многоугольник
+  if ($obj) foreach($obj as $id => $value) {
+
+    // для каждой ноды обработать массив вершин ломаной линии
+    foreach($value as $k => $v) {
+      // nid - идентификатор многоугольника
+      if ($k == 'nid' && is_numeric($v)) $nid = $v;
+      // delta - номер вершины многоугольника
+      if (preg_match('/^field_data_.+_delta$/', $k) && is_numeric($v)) $delta = $v;
+
+      if (is_numeric($nid)) {
+        // стиль многоугольника
+        $pg[$nid]['ym_pg_style'] = 'shortdash';
+        // название линии
+        $pg[$nid]['ym_pg_title'] = 'название многоугольника ' . $nid;
+        // описание многоугольника
+        $pg[$nid]['ym_pg_descr'] = 'описание многоугольника ' . $nid;
+        // цвет границы
+        $pg[$nid]['ym_pg_color'] = '#ff6699';
+        // имеется ли заливка
+        $pg[$nid]['ym_pg_fill'] = 1;
+        // цвет заливки
+        $pg[$nid]['ym_pg_fillcolor'] = '#333399';
+        // толщина границы
+        $pg[$nid]['ym_pg_width'] = 5;
+        // прозрачность
+        $pg[$nid]['ym_pg_opacity'] = 0.7;
+        // разрешено или нет перетаскивание многоугольника
+        $pg[$nid]['ym_pg_drag'] = 1;
+        // разрешено или нет редактирование многоугольника
+        $pg[$nid]['ym_pg_edit'] = user_access('edit polygon');
+      }
+
+      // для каждой из вершин линии
+      if (is_numeric($nid) && is_numeric($delta)) {
+        // значение широты для вершины линии
+        if (preg_match('/^field_data_.+_lat$/', $k) && !empty($v)) $pg[$nid]['points'][$delta]['lat'] = $v;
+        // значение долготы для вершины линии
+        if (preg_match('/^field_data_.+_lng$/', $k) && !empty($v)) $pg[$nid]['points'][$delta]['lng'] = $v;
+      }
+
+    }
+  }
+
+//  dpm($pl);
+
+  return $pg;
+}

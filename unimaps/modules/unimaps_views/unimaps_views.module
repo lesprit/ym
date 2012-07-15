@@ -1,0 +1,72 @@
+<?php
+
+// Параметры плагина по умолчанию 
+define('UNIMAPS_PLUGIN_STYLE',      'placemarks');
+
+
+function unimaps_views_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'unimaps_views')/* . '/views'*/,
+  );
+}
+
+// Определение списка параметров метки для views
+function unimaps_views_get_objects($obj, $handlers) {
+
+//  $alter_title = $handlers['title']->options['alter'];
+//  $alter_body = $handlers['body']->options['alter'];
+
+  $pm = array();
+
+dpm($obj);
+
+  if ($obj) foreach($obj as $id => $value) {
+    foreach($value as $k => $v) {
+
+//if (is_array($v) && array_key_exists('polyline')) dpm($v);
+
+if (isset($obj->$id[$k]['nid']['entity']->type)) $bundle = $obj->$id[$k]['nid']['entity']->type;
+$field_name = unimaps_get_fields($value->_field_data['nid']['entity']->type);
+dpm($value->_field_data['nid']['entity']->$field_name);
+
+
+foreach($v as $fid => $fname) {
+//if ($k == '_field_data' && is($obj->$id[$k]['nid']['entity']->type == 'ym_polygon') {
+// dpm(unimaps_get_fields($obj[$k]['nid']['entity']->type));
+//}
+}
+      // идентификатор метки
+      if ($k == 'nid' && is_numeric($v)) $nid = $v;
+      // значение delta для метки
+      if (preg_match('/^field_data_.+_delta$/', $k) && is_numeric($v)) {
+        $delta = $v;
+      }
+
+      if (is_numeric($nid) && is_numeric($delta)) {
+
+      $pid = (is_numeric($delta)) ? ($nid . '-' . $delta) : $nid;
+
+      // опциональная обрезка name и descr
+//      $pm[$res->nid]['name'] = ($alter_title['trim']) ? check_plain(views_trim_text($alter_title, $res->node_title)) : check_plain($res->node_title);
+//      $pm[$res->nid]['title'] = l($pm[$res->nid]['name'], 'node/' . $res->nid);
+
+      // значение широты для метки
+      if (preg_match('/^field_data_.+_lat$/', $k) && !empty($v)) $pm[$pid]['lat'] = check_plain($v);
+      // значение долготы для метки
+      if (preg_match('/^field_data_.+_lng$/', $k) && !empty($v)) $pm[$pid]['lng'] = check_plain($v);
+      // название метки
+      if (preg_match('/^field_data_.+_name$/', $k) && !empty($v)) $pm[$pid]['title'] = check_plain($v);
+      // описание метки
+      if (preg_match('/^field_data_.+_descr/', $k) && !empty($v)) $pm[$pid]['descr'] = user_access('allow html in balloons') ? filter_xss_admin($v) : check_plain($v);
+      // значок Яндекс.Карт для метки
+      if (preg_match('/^field_data_.+_yandex_icon$/', $k) && !empty($v)) $pm[$pid]['yandex_icon'] = check_plain($v);
+      // разрешено или нет редактирование меток
+      $pm[$pid]['edit'] = user_access('edit placemark');
+}
+
+    }
+  }
+
+  return $pm;
+}
